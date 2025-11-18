@@ -88,7 +88,7 @@ namespace Code.Tools
 
                 if (gridMaterial != null)
                 {
-                    MeshRenderer renderer = hex.GetComponent<MeshRenderer>();
+                    MeshRenderer renderer = hex.GetComponentInChildren<MeshRenderer>();
                     if (renderer != null) renderer.material = gridMaterial;
                 }
             }

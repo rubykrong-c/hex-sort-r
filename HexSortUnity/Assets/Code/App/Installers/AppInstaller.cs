@@ -2,6 +2,7 @@ using UnityEngine;
 using Zenject;
 using Code.App.Managers;
 using Code.App.Managers.LoadingBar;
+using Code.App.Models;
 
 namespace Code.App.Installers
 {
@@ -16,7 +17,16 @@ namespace Code.App.Installers
                 .AsSingle();
             
             Container.Bind<LoadingBarAdapter>().AsSingle();
-            
+
+            BindModels();
+        }
+
+        private void BindModels()
+        {
+            Container
+                .Bind(typeof(IUserDataGetter), typeof(IUserDataSetter))
+                .To<UserDataModel>()
+                .AsSingle();
         }
     }
 }
