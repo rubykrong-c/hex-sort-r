@@ -11,17 +11,20 @@ namespace Code.Core.Controllers
         private readonly LevelBuilder _levelBuilder;
         private readonly IUserDataSetter _userData;
         private readonly HexSlotsLoader _hexSlotsLoader;
+        private readonly HexSlotsHandler _hexSlotsHandler;
         
         public CoreController(
             CoreView coreView, 
             LevelBuilder levelBuilder,
             IUserDataSetter userDataSetter,
-            HexSlotsLoader hexSlotsLoader)
+            HexSlotsLoader hexSlotsLoader,
+            HexSlotsHandler hexSlotsHandler)
         {
             _coreView = coreView;
             _levelBuilder = levelBuilder;
             _userData = userDataSetter;
             _hexSlotsLoader = hexSlotsLoader;
+            _hexSlotsHandler = hexSlotsHandler;
         }
 
         public void Initialize()
@@ -30,6 +33,7 @@ namespace Code.Core.Controllers
             
             _hexSlotsLoader.LoadSlots();
             _levelBuilder.Build(idLevel);
+            _hexSlotsHandler.SpawnStacks();
         }
     }
 }

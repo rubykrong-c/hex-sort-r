@@ -15,5 +15,18 @@ MonoBehaviour:
   _levels:
   - LevelId: 0
     LevelPrefab: {fileID: 6728090837822662967, guid: 8e5702d25f7a5447fba08909b56b2c0d, type: 3}
+    Stacks:
+    - _items:
+      - _hexType: 1
+        _count: 5
+      - _hexType: 2
+        _count: 7
+    - _items:
+      - _hexType: 1
+        _count: 5
+    - _items:
+      - _hexType: 1
+        _count: 8
   - LevelId: 1
     LevelPrefab: {fileID: 5158696452397328830, guid: 9904aed1f701247a0b1f143a497d16e6, type: 3}
+    Stacks: []

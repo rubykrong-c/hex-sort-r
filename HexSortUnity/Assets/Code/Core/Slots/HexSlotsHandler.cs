@@ -39,7 +39,11 @@ namespace Code.Core.Slots
         {
             foreach (var slot in _currentSlots)
             {
-                if (slot == null || !slot.IsFree) continue;
+                if (slot == null || !slot.IsFree)
+                {
+                    continue;
+                }
+                
                 HexStack stack = _deckHandler.TryGetNextStack(true);
                 if (stack == null) continue;
                 slot.AcceptStack(stack);

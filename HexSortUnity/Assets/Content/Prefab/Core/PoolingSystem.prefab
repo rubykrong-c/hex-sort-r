@@ -52,6 +52,18 @@ MonoBehaviour:
     AllowGrow: 1
     AutoDestroy: 1
     clones: []
+  - ID: HexStack
+    SourcePrefab: {fileID: 8489128173397825111, guid: 659262cf7c3594a1aa9968cfc7dd9594, type: 3}
+    MinNumberOfObject: 5
+    AllowGrow: 1
+    AutoDestroy: 1
+    clones: []
+  - ID: HexElement
+    SourcePrefab: {fileID: 8556865936031689845, guid: ca80b9a254ac3443c912d9cc1579937b, type: 3}
+    MinNumberOfObject: 25
+    AllowGrow: 1
+    AutoDestroy: 1
+    clones: []
   DefaultCount: 10
   initScale: {x: 0, y: 0, z: 0}
 --- !u!114 &96558285946818590

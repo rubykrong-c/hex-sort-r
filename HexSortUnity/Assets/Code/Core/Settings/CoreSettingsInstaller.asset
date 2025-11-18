@@ -39,13 +39,13 @@ MonoBehaviour:
         elementIcon: {fileID: 0}
       reqReferences: {fileID: 0}
       isExpanded: 1
-      _keyValues: 000000000100000002000000
-      _keys: 000000000100000002000000
+      _keyValues: 010000000200000003000000
+      _keys: 010000000200000003000000
       _values:
-      - {fileID: 2100000, guid: d871bca2cea934579981f08fa63eaea0, type: 2}
       - {fileID: 2100000, guid: 09cc4ba772e104d77b2ab6e4ffdc20c2, type: 2}
       - {fileID: 2100000, guid: f0f3aafc57423412abedc5eeb4c3adf3, type: 2}
+      - {fileID: 2100000, guid: 09cc4ba772e104d77b2ab6e4ffdc20c2, type: 2}
     RandomSettings:
+      DefaultColors: 03000000
       StackHeightRange: {x: 3, y: 8}
-      RunLengthRange: {x: 1, y: 4}
-      DefaultColorIds: 000000000100000002000000
+      RunLengthRange: {x: 1, y: 1}

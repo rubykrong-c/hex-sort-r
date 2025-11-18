@@ -47,14 +47,13 @@ namespace Code.Core.Installers
             Container.Bind<Transform>()
                 .FromInstance(_coreView.SlotsRoot)
                 .WhenInjectedInto<HexSlotsLoader>();
-            
+
             Container.Bind<HexSlotsHandler>()
-                .AsSingle()
-                .WhenInjectedInto<HexSlotsLoader>();
+                .AsSingle();
             
             Container.Bind<HexDeckHandler>()
-                .AsSingle()
-                .WhenInjectedInto<HexSlotsHandler>();
+                .AsSingle();
+
         }
     }
 }

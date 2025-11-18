@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using Code.Core.Slots.Stack;
 using RotaryHeart.Lib.SerializableDictionary;
 using UnityEngine;
+using Random = System.Random;
 
 namespace Code.Core.Slots.Deck
 {
@@ -9,8 +11,8 @@ namespace Code.Core.Slots.Deck
     {
         private readonly PoolingSystem _poolingSystem;
         private readonly Settings _settings;
-        private readonly Queue<HexStackDefinition> _stackDefinitions = new();
-        private readonly List<int> _availableColors = new();
+        private readonly Queue<HexStackData> _stackDefinitions = new();
+        private readonly List<EHexType> _availableColors = new();
 
         public HexDeckHandler(PoolingSystem poolingSystem, Settings settings)
         {
@@ -18,14 +20,17 @@ namespace Code.Core.Slots.Deck
             _settings = settings;
         }
 
-        public void SetDeck(IEnumerable<HexStackDefinition> definitions, IEnumerable<int> levelColors)
+        public void SetDeck(IEnumerable<HexStackData> definitions, IEnumerable<EHexType> levelColors)
         {
             _stackDefinitions.Clear();
             if (definitions != null)
             {
                 foreach (var definition in definitions)
                 {
-                    if (definition == null || definition.IsEmpty) continue;
+                    if (definition == null || definition.IsEmpty)
+                    {
+                        continue;
+                    }
                     _stackDefinitions.Enqueue(definition);
                 }
             }
@@ -60,7 +65,7 @@ namespace Code.Core.Slots.Deck
             return CreateStack(randomDefinition);
         }
 
-        private HexStack CreateStack(HexStackDefinition definition)
+        private HexStack CreateStack(HexStackData definition)
         {
             if (definition == null || definition.IsEmpty)
             {
@@ -69,82 +74,97 @@ namespace Code.Core.Slots.Deck
 
             HexStack stack = _poolingSystem.InstantiateAPS(_settings.StackPoolKey).GetComponent<HexStack>();
             List<HexElement> createdElements = new List<HexElement>();
-            foreach (var run in definition.ColorRuns)
+            foreach (var run in definition.Items)
             {
                 if (!run.IsValid) continue;
                 Material material = null;
-                _settings.ColorMaterials?.TryGetValue(run.ColorId, out material);
+                _settings.ColorMaterials?.TryGetValue(run.HexType, out material);
                 for (int i = 0; i < run.Count; i++)
                 {
                     HexElement element = _poolingSystem.InstantiateAPS(_settings.ElementPoolKey).GetComponent<HexElement>();
-                    element.Configure(run.ColorId, material);
+                    element.Configure(run.HexType, material);
                     createdElements.Add(element);
                 }
             }
 
-            stack.SetStack(createdElements, definition.ColorRuns, _poolingSystem);
+            stack.SetStack(createdElements, definition.Items, _poolingSystem);
             return stack;
         }
 
-        private HexStackDefinition CreateRandomDefinition()
+        private HexStackData CreateRandomDefinition()
         {
             RandomGenerationSettings randomSettings = _settings.RandomSettings;
+
             int minHeight = Mathf.Max(1, randomSettings.StackHeightRange.x);
             int maxHeight = Mathf.Max(minHeight, randomSettings.StackHeightRange.y);
             int stackHeight = UnityEngine.Random.Range(minHeight, maxHeight + 1);
             int remaining = stackHeight;
 
-            List<int> colorPool = GetRuntimeColorPool();
+            List<EHexType> colorPool = GetRuntimeColorPool();
             if (colorPool.Count == 0)
-            {
                 throw new InvalidOperationException("HexDeckHandler: no colors available for random generation.");
-            }
 
-            List<HexColorRun> runs = new List<HexColorRun>();
-            int lastColor = -1;
+            List<HexStackItem> hexStackItems = new();
+            EHexType lastColor = default;
+            bool hasLastColor = false;
+
             while (remaining > 0)
             {
-                int colorId = PickNextColor(colorPool, lastColor);
+                EHexType color = PickNextColor(colorPool, hasLastColor ? lastColor : default);
+
                 int minRun = Mathf.Max(1, randomSettings.RunLengthRange.x);
                 int maxRun = Mathf.Max(minRun, randomSettings.RunLengthRange.y);
                 int desiredLength = UnityEngine.Random.Range(minRun, maxRun + 1);
+
                 int length = Mathf.Min(desiredLength, remaining);
-                runs.Add(new HexColorRun(colorId, length));
+
+                hexStackItems.Add(new HexStackItem(color, length));
+
                 remaining -= length;
-                lastColor = colorId;
+                lastColor = color;
+                hasLastColor = true;
             }
 
-            return HexStackDefinition.Create(runs);
+            return HexStackData.Create(hexStackItems);
         }
 
-        private int PickNextColor(List<int> colors, int lastColor)
+        private EHexType PickNextColor(List<EHexType> colors, EHexType lastColor)
         {
-            if (colors.Count == 0)
+            if (colors == null || colors.Count == 0)
             {
                 return lastColor;
             }
+            
+            int index = UnityEngine.Random.Range(0, colors.Count);
+            EHexType picked = colors[index];
 
-            int colorId = colors[UnityEngine.Random.Range(0, colors.Count)];
-            if (colorId == lastColor && colors.Count > 1)
+            // если совпало с предыдущим цветом — берём следующий в списке
+            if (picked.Equals(lastColor) && colors.Count > 1)
             {
-                colorId = colors[(colors.IndexOf(colorId) + 1) % colors.Count];
+                int nextIndex = (index + 1) % colors.Count;
+                picked = colors[nextIndex];
             }
-            return colorId;
+
+            return picked;
         }
 
-        private List<int> GetRuntimeColorPool()
+        private List<EHexType> GetRuntimeColorPool()
         {
+            // 1. Если есть динамически доступные цвета — использовать их
             if (_availableColors.Count > 0)
             {
                 return _availableColors;
             }
 
-            if (_settings.RandomSettings.DefaultColorIds != null && _settings.RandomSettings.DefaultColorIds.Count > 0)
+            // 2. Если задан дефолтный пул цветов в настройках — использовать его
+            if (_settings.RandomSettings.DefaultColors != null &&
+                _settings.RandomSettings.DefaultColors.Count > 0)
             {
-                return _settings.RandomSettings.DefaultColorIds;
+                return _settings.RandomSettings.DefaultColors;
             }
 
-            return new List<int>();
+            // 3. Пустой пул, чтобы не словить null
+            return new List<EHexType>();
         }
 
         [Serializable]
@@ -157,16 +177,16 @@ namespace Code.Core.Slots.Deck
         }
 
         [Serializable]
-        public class HexColorMaterialDictionary : SerializableDictionaryBase<int, Material>
+        public class HexColorMaterialDictionary : SerializableDictionaryBase<EHexType, Material>
         {
         }
 
         [Serializable]
         public class RandomGenerationSettings
         {
-            public Vector2Int StackHeightRange = new Vector2Int(3, 8);
-            public Vector2Int RunLengthRange = new Vector2Int(1, 4);
-            public List<int> DefaultColorIds = new List<int> { 0, 1, 2 };
+            public List<EHexType> DefaultColors;
+            public Vector2Int StackHeightRange;
+            public Vector2Int RunLengthRange;
         }
     }
 }

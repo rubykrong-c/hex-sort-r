@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Code.Core.Slots.Stack;
 using UnityEngine;
 
 namespace Code.Core.LevelDesign
@@ -12,6 +13,7 @@ namespace Code.Core.LevelDesign
         {
             public int LevelId;                
             public GameObject LevelPrefab;    
+            public List<HexStackData> Stacks; 
         }
 
         [SerializeField]
