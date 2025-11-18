@@ -13,7 +13,8 @@ namespace Code.Core.LevelDesign
         {
             public int LevelId;                
             public GameObject LevelPrefab;    
-            public List<HexStackData> Stacks; 
+            public List<HexStackData> Stacks;
+            public List<EHexType> AvailableColor;
         }
 
         [SerializeField]
@@ -21,17 +22,33 @@ namespace Code.Core.LevelDesign
 
         public GameObject GetLevelPrefab(int levelId)
         {
-            foreach (var entry in _levels)
+            return GetLevelData(levelId)?.LevelPrefab;
+        }
+
+        public IEnumerable<HexStackData> GetDeck(int levelId)
+        {
+          return GetLevelData(levelId)?.Stacks;
+        }
+
+        public List<EHexType> GetAvailableColors(int levelId)
+        {
+            return GetLevelData(levelId)?.AvailableColor;
+        }
+        
+        public int TotalLevels => _levels.Count;
+
+        private LevelData GetLevelData(int levelId)
+        {
+            var data = _levels.Find(x => x.LevelId == levelId);
+
+            if (data != null)
             {
-                if (entry.LevelId == levelId)
-                    return entry.LevelPrefab;
+                return data;
             }
 
             Debug.LogError($"LevelDatabase: уровень {levelId} не найден.");
             return null;
         }
-
-        public int TotalLevels => _levels.Count;
     }
 
 }

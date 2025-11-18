@@ -45,5 +45,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Code.HexStack
   _elementsRoot: {fileID: 2885353052438281303}
-  _elementHeightStep: 0.08
+  _elementHeightStep: 0.3
   _enableElementColliders: 1
