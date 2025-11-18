@@ -1,5 +1,7 @@
 using Code.Core.Controllers;
 using Code.Core.LevelDesign;
+using Code.Core.Slots;
+using Code.Core.Slots.Deck;
 using Code.Core.Views;
 using UnityEngine;
 using Zenject;
@@ -21,6 +23,12 @@ namespace Code.Core.Installers
                 .FromInstance(_coreView)
                 .WhenInjectedInto<CoreController>();
 
+            LevelInstall();
+            SlotInstall();
+        }
+
+        private void LevelInstall()
+        {
             Container.Bind<LevelBuilder>().AsSingle();
             
             Container.Bind<LevelDatabase>()
@@ -30,8 +38,23 @@ namespace Code.Core.Installers
             Container.Bind<Transform>()
                 .FromInstance(_coreView.LevelRoot)
                 .WhenInjectedInto<LevelBuilder>();
+        }
 
+        private void SlotInstall()
+        {
+            Container.Bind<HexSlotsLoader>().AsSingle();
             
+            Container.Bind<Transform>()
+                .FromInstance(_coreView.SlotsRoot)
+                .WhenInjectedInto<HexSlotsLoader>();
+            
+            Container.Bind<HexSlotsHandler>()
+                .AsSingle()
+                .WhenInjectedInto<HexSlotsLoader>();
+            
+            Container.Bind<HexDeckHandler>()
+                .AsSingle()
+                .WhenInjectedInto<HexSlotsHandler>();
         }
     }
 }

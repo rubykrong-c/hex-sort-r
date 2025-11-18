@@ -1,0 +1,51 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 502458a7918645999bb4fd78d29a0bab, type: 3}
+  m_Name: CoreSettingsInstaller
+  m_EditorClassIdentifier: Assembly-CSharp::Code.Core.Settings.CoreSettingsInstaller
+  _levelLoaderSettings:
+    StackPoolKey: HexStack
+    ElementPoolKey: HexElement
+    ColorMaterials:
+      reorderableList:
+        canAdd: 1
+        canRemove: 1
+        draggable: 1
+        expandable: 1
+        multipleSelection: 1
+        isExpanded: 1
+        label:
+          m_Text: Keys
+          m_Image: {fileID: 0}
+          m_Tooltip: 
+          m_TextWithWhitespace: "Keys\u200B"
+        headerHeight: 18
+        footerHeight: 13
+        slideEasing: 0.15
+        verticalSpacing: 2
+        showDefaultBackground: 1
+        elementDisplayType: 0
+        elementNameProperty: 
+        elementNameOverride: 
+        elementIcon: {fileID: 0}
+      reqReferences: {fileID: 0}
+      isExpanded: 1
+      _keyValues: 000000000100000002000000
+      _keys: 000000000100000002000000
+      _values:
+      - {fileID: 2100000, guid: d871bca2cea934579981f08fa63eaea0, type: 2}
+      - {fileID: 2100000, guid: 09cc4ba772e104d77b2ab6e4ffdc20c2, type: 2}
+      - {fileID: 2100000, guid: f0f3aafc57423412abedc5eeb4c3adf3, type: 2}
+    RandomSettings:
+      StackHeightRange: {x: 3, y: 8}
+      RunLengthRange: {x: 1, y: 4}
+      DefaultColorIds: 000000000100000002000000
