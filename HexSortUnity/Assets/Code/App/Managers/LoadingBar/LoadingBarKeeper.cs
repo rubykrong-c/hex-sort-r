@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using Zenject;
 
-namespace Code.Services
+namespace Code.App.Managers.LoadingBar
 {
     public class LoadingBarAdapter
     {
