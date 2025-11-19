@@ -32,6 +32,7 @@ namespace Code.Core.Installers
 
         private void LevelInstall()
         {
+            Container.Bind<FieldModel>().AsSingle();
             Container.Bind<LevelBuilder>().AsSingle();
             
             Container.Bind<LevelDatabase>()
