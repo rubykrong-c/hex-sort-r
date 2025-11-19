@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Code.Core.Level.Slots.Stack;
 using Code.Core.Slots.Stack;
 using RotaryHeart.Lib.SerializableDictionary;
 using UnityEngine;

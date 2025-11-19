@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Code.Core.Slots.Stack;
 using UnityEngine;
 
-namespace Code.Core.LevelDesign
+namespace Code.Core.Level
 {
     [CreateAssetMenu(fileName = "LevelDatabase", menuName = "Game/Level Database")]
     public class LevelDatabase : ScriptableObject

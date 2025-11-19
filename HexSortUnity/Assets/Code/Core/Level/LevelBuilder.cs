@@ -1,9 +1,8 @@
-using Code.Core.LevelDesign;
 using Code.Core.Slots;
 using Code.Core.Slots.Deck;
 using UnityEngine;
 
-namespace Code.Core
+namespace Code.Core.Level
 {
     public class LevelBuilder
     {

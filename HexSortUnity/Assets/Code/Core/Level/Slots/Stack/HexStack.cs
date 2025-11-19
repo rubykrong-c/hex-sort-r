@@ -1,33 +1,39 @@
+using System;
 using System.Collections.Generic;
+using Code.Core.Level.Element;
 using Code.Core.Slots;
 using Code.Core.Slots.Stack;
+using Cysharp.Threading.Tasks;
+using DG.Tweening;
 using UnityEngine;
 
-namespace Code
+namespace Code.Core.Level.Slots.Stack
 {
     public class HexStack : MonoBehaviour, IPoolable
     {
-        [SerializeField]
-        private Transform _elementsRoot;
-
-        [SerializeField]
-        private float _elementHeightStep = 0.05f;
+        private const float OFFSET_Y_ANIMATION = 2f;
+        private const float SPEED_ANIMATION = 14f;
+        private const float THRESHOLD_DESTINATION_ANIM = 4.5f;
+        private const float MOVE_TO_CHUNCK_ANIMATION_TIME = 0.2f;
         
-
-        [SerializeField]
-        private bool _enableElementColliders = true;
-
+        [SerializeField] private Transform _elementsRoot;
+        [SerializeField] private float _elementHeightStep = 0.05f;
+        [SerializeField] private bool _enableElementColliders = true;
+        [SerializeField] private BoxCollider _collider;
+        [SerializeField] private Draggable _draggable;
+        
+        public bool IsInSlot { get; private set; }
+        
         private readonly List<HexElement> _elements = new();
         private readonly List<HexStackItemInfo> _hexStackItemsInfo = new();
+        public Action<HexStack> OnChunkSet;
 
         private PoolingSystem _poolingSystem;
         private HexSlotView _currentSlot;
-        private HexFieldChunk _currentChunk;
+        private TileView _currentTile;
+        private bool _isMoveAnimationRunning;
 
         public Transform ElementsRoot => _elementsRoot;
-        public IReadOnlyList<HexElement> Elements => _elements;
-        public IReadOnlyList<HexStackItemInfo> HexStackItemsInfo => _hexStackItemsInfo;
-        public bool IsPlacedOnField => _currentChunk != null;
 
         public void SetStack(IReadOnlyList<HexElement> orderedElements,
                               IReadOnlyList<HexStackItem> orderedHexStackItems,
@@ -44,50 +50,87 @@ namespace Code
                     if (element == null) continue;
                     _elements.Add(element);
                     element.AttachToStack(this, i);
-                    element.ToggleCollider(_enableElementColliders);
                 }
             }
 
             ApplyRuns(orderedHexStackItems);
             UpdateElementLayout();
+            UpdateStackCollider();
         }
 
-        public void AttachToSlot(HexSlotView slot)
+        public async UniTaskVoid AttachToSlot(HexSlotView slot)
         {
-            if (slot == null) return;
+            if (slot == null)
+            {
+                return;
+            }
             _currentSlot = slot;
-            _currentChunk = null;
+            _currentTile = null;
             Transform anchor = slot != null ? slot.StackAnchor : null;
             transform.SetParent(anchor != null ? anchor : slot?.transform, false);
             transform.localPosition = Vector3.zero;
+            
+            _draggable.MoveBackInSlot = () => MoveToSlot(slot);
+            _draggable.MoveInChunk = x => SetChunk(x, false);
+           // MoveToSlotInitial(slotItem, slotIndex);
+            await UniTask.WaitWhile(() => _isMoveAnimationRunning == true);
+            _draggable.EnableDrag(true);
         }
 
-        public bool TryPlaceOnChunk(HexFieldChunk chunk)
+        private void MoveToSlot(HexSlotView slot)
         {
-            if (chunk == null) return false;
-            if (!chunk.TryAcceptStack(this))
+            _draggable.EnableCollider(false);
+            transform.DOKill();
+
+            var dest = Vector3.Distance(slot.transform.position, transform.position);
+
+            var time = dest / SPEED_ANIMATION;
+            if (dest > THRESHOLD_DESTINATION_ANIM)
             {
-                ReturnToSlot();
-                return false;
+                time = THRESHOLD_DESTINATION_ANIM / SPEED_ANIMATION;
             }
 
-            _currentChunk = chunk;
+            var worldPos = slot.transform.position;
+            MoveToPos(worldPos, time);
+        }
+
+        private async UniTaskVoid SetChunk(TileView tileView, bool isInitialSet = true)
+        {
+            IsInSlot = false;
+            _draggable.EnableDrag(false);
+            transform.SetParent(tileView.ItemSpawningTransform, true);
+            await UniTask.DelayFrame(1);
+            await transform.DOLocalMove(Vector3.zero, MOVE_TO_CHUNCK_ANIMATION_TIME).SetEase(Ease.InBack).ToUniTask();
+            
+            _currentTile = tileView;
+            _currentTile.SetElement();
+
             if (_currentSlot != null)
             {
+                _draggable.MoveBackInSlot = null;
                 _currentSlot.ClearSlot();
                 _currentSlot = null;
             }
 
-            Transform anchor = chunk.StackAnchor != null ? chunk.StackAnchor : chunk.transform;
-            transform.SetParent(anchor, false);
-            transform.localPosition = Vector3.zero;
-            return true;
+            await UniTask.DelayFrame(1);
+           
+            OnChunkSet?.Invoke(this);
         }
-
-        public void ReturnToSlot()
+        
+        private void MoveToPos(Vector3 pos, float time)
         {
-            if (_currentSlot == null) return;
-            AttachToSlot(_currentSlot);
+            _isMoveAnimationRunning = true;
+            transform.DOMoveY(pos.y + OFFSET_Y_ANIMATION, time * 0.3f).SetEase(Ease.OutQuint).OnComplete(() =>
+            {
+                transform.DOMoveY(pos.y, time * 0.7f).SetEase(Ease.Linear);
+            });
+
+            transform.DOMoveX(pos.x, time).SetEase(Ease.InQuad);
+            transform.DOMoveZ(pos.z, time).SetEase(Ease.InBack).OnComplete(() =>
+            {
+                _isMoveAnimationRunning = false;
+                _draggable.EnableDrag(true);
+            });
         }
 
         public Vector3 GetElementLocalPosition(int orderIndex)
@@ -95,35 +138,47 @@ namespace Code
             return new Vector3(0, orderIndex * _elementHeightStep, 0);
         }
         
-
-        public bool TryTransferTopRunTo(HexStack targetStack, EHexType type, int count)
+        private void UpdateStackCollider()
         {
-            if (targetStack == null || _hexStackItemsInfo.Count == 0 || count <= 0)
+            if (_collider == null || _elements.Count == 0)
             {
-                return false;
+                return;
             }
 
-            HexStackItemInfo topRun = _hexStackItemsInfo[_hexStackItemsInfo.Count - 1];
-            if (topRun.Type != type || topRun.Length < count)
+            Bounds combined = new Bounds();
+
+            bool initialized = false;
+            foreach (var element in _elements)
             {
-                return false;
+                if (element == null)
+                {
+                    continue;
+                }
+
+                var elementMesh = element.Mesh;
+
+                if (!initialized)
+                {
+                    combined = elementMesh.bounds;
+                    initialized = true;
+                }
+                else
+                {
+                    combined.Encapsulate(elementMesh.bounds);
+                }
             }
 
-            int startIndex = topRun.StartIndex + topRun.Length - count;
-            List<HexElement> movingElements = new List<HexElement>(count);
-            for (int i = startIndex; i < startIndex + count; i++)
+            if (!initialized)
             {
-                movingElements.Add(_elements[i]);
+                return;
             }
 
-            _elements.RemoveRange(startIndex, count);
-            targetStack.AcceptElementsFromNeighbor(movingElements);
+            // Переводим мировые координаты в локальные стека
+            Vector3 localCenter = transform.InverseTransformPoint(combined.center);
+            Vector3 localSize = transform.InverseTransformVector(combined.size);
 
-            RebuildRuns();
-            targetStack.RebuildRuns();
-            UpdateElementLayout();
-            targetStack.UpdateElementLayout();
-            return true;
+            _collider.center = localCenter;
+            _collider.size = localSize;
         }
 
         private void AcceptElementsFromNeighbor(List<HexElement> newElements)
@@ -205,7 +260,10 @@ namespace Code
             for (int i = 0; i < _elements.Count; i++)
             {
                 HexElement element = _elements[i];
-                if (element == null) continue;
+                if (element == null)
+                {
+                    continue;
+                }
                 element.AttachToStack(this, i);
             }
         }
@@ -230,14 +288,13 @@ namespace Code
 
         public void Initilize()
         {
-            // No-op. Configuration happens in SetStack.
         }
 
         public void Dispose()
         {
             ReleaseElementsToPool();
             _currentSlot = null;
-            _currentChunk = null;
+            _currentTile = null;
         }
 
         public readonly struct HexStackItemInfo

@@ -1,3 +1,4 @@
+using Code.Core.Level.Slots.Stack;
 using Code.Core.Slots.Stack;
 using UnityEngine;
 
@@ -7,12 +8,10 @@ namespace Code
     {
         [SerializeField]
         private MeshRenderer _renderer;
-
-        [SerializeField]
-        private Collider _collider;
-
+        
         public EHexType Type { get; private set; }
         public HexStack CurrentStack { get; private set; }
+        public MeshRenderer Mesh => _renderer;
 
         public void Configure(EHexType colorId, Material material)
         {
@@ -31,15 +30,7 @@ namespace Code
             transform.SetParent(targetParent, false);
             transform.localPosition = stack.GetElementLocalPosition(orderInStack);
         }
-
-        public void ToggleCollider(bool state)
-        {
-            if (_collider != null)
-            {
-                _collider.enabled = state;
-            }
-        }
-
+        
         public void Detach()
         {
             CurrentStack = null;
@@ -48,12 +39,11 @@ namespace Code
 
         public void Initilize()
         {
-            ToggleCollider(false);
+            
         }
 
         public void Dispose()
         {
-            ToggleCollider(false);
             CurrentStack = null;
         }
     }

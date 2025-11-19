@@ -257,7 +257,7 @@ MonoBehaviour:
   hexagonPrefab: {fileID: 5881630282046018152, guid: 6c1cb4ac9e8304cd8afa3a6e31cb6e17, type: 3}
   gridMaterial: {fileID: 2100000, guid: b6b6903d4b9a74902a7cb158ce97ecc0, type: 2}
   hexWidth: 2.19
-  outerRings: 2
+  outerRings: 1
 --- !u!4 &177138510
 Transform:
   m_ObjectHideFlags: 0

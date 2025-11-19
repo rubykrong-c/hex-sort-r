@@ -1,5 +1,57 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &5146028392443239985
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6961294240069085046}
+  - component: {fileID: 133382152387186304}
+  m_Layer: 6
+  m_Name: SphereCaster
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6961294240069085046
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5146028392443239985}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2885353052438281303}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &133382152387186304
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5146028392443239985}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 572d697e0c904e198c8d0044e6fc7978, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Code.Core.Level.Element.SphereCaster
+  _enableGizmos: 1
+  _doCheckParent: 0
+  _layerToCast:
+    serializedVersion: 2
+    m_Bits: 192
+  _sphereRadius: 1
+  _castDistance: 12
+  _castDirection: {x: 0, y: -1, z: 0}
 --- !u!1 &8489128173397825111
 GameObject:
   m_ObjectHideFlags: 0
@@ -10,7 +62,9 @@ GameObject:
   m_Component:
   - component: {fileID: 2885353052438281303}
   - component: {fileID: 2639946664221040831}
-  m_Layer: 0
+  - component: {fileID: 3679883196779354733}
+  - component: {fileID: 1528282527506539332}
+  m_Layer: 6
   m_Name: HexStack
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -29,7 +83,8 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 6961294240069085046}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &2639946664221040831
@@ -47,3 +102,43 @@ MonoBehaviour:
   _elementsRoot: {fileID: 2885353052438281303}
   _elementHeightStep: 0.3
   _enableElementColliders: 1
+  _collider: {fileID: 1528282527506539332}
+  _draggable: {fileID: 3679883196779354733}
+--- !u!114 &3679883196779354733
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8489128173397825111}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dec51678153e41178be22ca2df03fa78, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Code.Core.Level.Element.Draggable
+  _collider: {fileID: 1528282527506539332}
+  _chunksCaster: {fileID: 133382152387186304}
+  _offset: {x: -0.3, y: 0.5, z: 0}
+  _isPicked: 0
+  _isDragging: 0
+--- !u!65 &1528282527506539332
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8489128173397825111}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}

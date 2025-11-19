@@ -1,5 +1,6 @@
 using Code.Core.Controllers;
-using Code.Core.LevelDesign;
+using Code.Core.Level;
+using Code.Core.Level.Element;
 using Code.Core.Slots;
 using Code.Core.Slots.Deck;
 using Code.Core.Views;
@@ -23,6 +24,8 @@ namespace Code.Core.Installers
                 .FromInstance(_coreView)
                 .WhenInjectedInto<CoreController>();
 
+            Container.BindInterfacesAndSelfTo<ElementsPicker>().AsSingle().NonLazy();
+            
             LevelInstall();
             SlotInstall();
         }

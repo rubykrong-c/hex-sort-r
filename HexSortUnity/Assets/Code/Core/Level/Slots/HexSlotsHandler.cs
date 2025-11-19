@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Code.Core.Level.Slots.Stack;
 using Code.Core.Slots.Deck;
 
 namespace Code.Core.Slots
@@ -45,7 +46,10 @@ namespace Code.Core.Slots
                 }
                 
                 HexStack stack = _deckHandler.TryGetNextStack(true);
-                if (stack == null) continue;
+                if (stack == null)
+                {
+                    continue;
+                }
                 slot.AcceptStack(stack);
                 _freeSlots--;
             }
