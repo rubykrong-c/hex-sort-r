@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Code.Core.Level;
 using Code.Core.Level.Slots.Stack;
 using Code.Core.Slots.Deck;
 
@@ -7,12 +8,14 @@ namespace Code.Core.Slots
     public class HexSlotsHandler
     {
         private readonly HexDeckHandler _deckHandler;
+        private readonly FieldController _fieldController;
         private readonly List<HexSlotView> _currentSlots = new();
         private int _freeSlots;
 
-        public HexSlotsHandler(HexDeckHandler deckHandler)
+        public HexSlotsHandler(HexDeckHandler deckHandler, FieldController fieldController)
         {
             _deckHandler = deckHandler;
+            _fieldController = fieldController;
         }
 
         public void SetSlots(List<HexSlotView> slots)
@@ -50,6 +53,7 @@ namespace Code.Core.Slots
                 {
                     continue;
                 }
+                _fieldController?.RegisterStack(stack);
                 slot.AcceptStack(stack);
                 _freeSlots--;
             }

@@ -34,6 +34,7 @@ namespace Code.Core.Level.Slots.Stack
         private bool _isMoveAnimationRunning;
 
         public Transform ElementsRoot => _elementsRoot;
+        public TileView CurrentTile => _currentTile;
 
         public void SetStack(IReadOnlyList<HexElement> orderedElements,
                               IReadOnlyList<HexStackItem> orderedHexStackItems,
@@ -53,7 +54,7 @@ namespace Code.Core.Level.Slots.Stack
                 }
             }
 
-            ApplyRuns(orderedHexStackItems);
+            ApplyItems(orderedHexStackItems);
             UpdateElementLayout();
             UpdateStackCollider();
         }
@@ -137,6 +138,21 @@ namespace Code.Core.Level.Slots.Stack
         {
             return new Vector3(0, orderIndex * _elementHeightStep, 0);
         }
+
+        public bool TryGetTopRun(out EHexType color, out int count)
+        {
+            if (_hexStackItemsInfo.Count == 0)
+            {
+                color = default;
+                count = 0;
+                return false;
+            }
+
+            HexStackItemInfo topInfo = _hexStackItemsInfo[_hexStackItemsInfo.Count - 1];
+            color = topInfo.Type;
+            count = topInfo.Length;
+            return true;
+        }
         
         private void UpdateStackCollider()
         {
@@ -191,7 +207,7 @@ namespace Code.Core.Level.Slots.Stack
             }
         }
 
-        private void ApplyRuns(IReadOnlyList<HexStackItem> items)
+        private void ApplyItems(IReadOnlyList<HexStackItem> items)
         {
             if (items == null || items.Count == 0)
             {

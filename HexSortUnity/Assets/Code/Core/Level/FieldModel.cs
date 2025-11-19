@@ -1,5 +1,7 @@
 using System.Collections.Generic;
 using Code.Core;
+using Code.Core.Level.Slots.Stack;
+using Code.Core.Slots.Stack;
 using UnityEngine;
 
 namespace Code.Core.Level
@@ -27,6 +29,7 @@ namespace Code.Core.Level
                     continue;
                 }
                 var hex = new FieldHex(tile);
+                hex.ClearStack();
                 _hexes.Add(hex);
                 _lookup[tile] = hex;
             }
@@ -70,6 +73,22 @@ namespace Code.Core.Level
             return _lookup.TryGetValue(tile, out hex);
         }
 
+        public void UpdateHex(TileView tile, HexStack stack, EHexType topColor, int topCount)
+        {
+            if (!_lookup.TryGetValue(tile, out var hex))
+            {
+                return;
+            }
+
+            if (stack == null)
+            {
+                hex.ClearStack();
+                return;
+            }
+
+            hex.SetStackData(stack, topColor, topCount);
+        }
+
         public IEnumerable<TileView> GetNeighborTiles(TileView tile)
         {
             if (!_lookup.TryGetValue(tile, out var hex))
@@ -106,10 +125,17 @@ namespace Code.Core.Level
         public class FieldHex
         {
             private readonly List<FieldHex> _neighbors = new();
+            private HexStack _stack;
+            private EHexType _topColor;
+            private int _topColorCount;
 
             public TileView Tile { get; }
             public IReadOnlyList<FieldHex> Neighbors => _neighbors;
             internal Vector2 FlatPosition { get; }
+            public bool HasStack => _stack != null;
+            public HexStack Stack => _stack;
+            public EHexType TopColor => _topColor;
+            public int TopColorCount => _topColorCount;
 
             public FieldHex(TileView tile)
             {
@@ -129,6 +155,20 @@ namespace Code.Core.Level
                     return;
                 }
                 _neighbors.Add(other);
+            }
+
+            internal void ClearStack()
+            {
+                _stack = null;
+                _topColor = default;
+                _topColorCount = 0;
+            }
+
+            internal void SetStackData(HexStack stack, EHexType color, int count)
+            {
+                _stack = stack;
+                _topColor = color;
+                _topColorCount = Mathf.Max(0, count);
             }
         }
     }
