@@ -1,5 +1,7 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Code.Core.Level.Element;
 using Code.Core.Slots;
 using Code.Core.Slots.Stack;
@@ -27,7 +29,9 @@ namespace Code.Core.Level.Slots.Stack
         private readonly List<HexElement> _elements = new();
         private readonly List<HexStackItemInfo> _hexStackItemsInfo = new();
         public Action<HexStack> OnChunkSet;
-
+        public Action<HexStack, HexStack> OnSort;
+        public HexElement TopElement => _elements.Last();
+        
         private PoolingSystem _poolingSystem;
         private HexSlotView _currentSlot;
         private TileView _currentTile;
@@ -152,6 +156,31 @@ namespace Code.Core.Level.Slots.Stack
             color = topInfo.Type;
             count = topInfo.Length;
             return true;
+        }
+        
+        public void Jump(HexStack stack, EHexType type, int count)
+        {
+            int countElements = _elements.Count;
+            int take = Mathf.Min(countElements, count);
+            
+            
+            for (int i = 0; i < take; i++)
+            {
+                int index = countElements - 1 - i;
+                if (_elements[index].Type == type)
+                {
+                    var targetPos = stack.TopElement.transform.position + Vector3.up * i * _elementHeightStep;
+
+                    if (i == take - 1)
+                    {
+                        _elements[index].ArcJump.SimpleMove(targetPos, false, i, () => ReplaceHexElemetsToStack( stack, type, count));
+                    }
+                    else
+                    {
+                        _elements[index].ArcJump.SimpleMove(targetPos, false, i);
+                    }
+                }
+            }
         }
         
         private void UpdateStackCollider()
@@ -301,11 +330,69 @@ namespace Code.Core.Level.Slots.Stack
             _elements.Clear();
             _hexStackItemsInfo.Clear();
         }
+        
+        private void ReplaceHexElemetsToStack(HexStack stack, EHexType type, int count)
+        {
+            if (stack == null || count <= 0)
+            {
+                return;
+            }
+
+            if (_elements.Count == 0)
+            {
+                return;
+            }
+            
+            // Get top hex
+            int available = Mathf.Min(count, _elements.Count);
+            int startIndex = _elements.Count - available;
+
+            List<HexElement> movedElements = _elements.GetRange(startIndex, available);
+            _elements.RemoveRange(startIndex, available);
+
+            // Remove HexStackItem
+            RebuildRuns();
+            
+            stack.AcceptElementsFromNeighbor(movedElements);
+            
+            UpdateElementLayout();
+            UpdateStackCollider();
+
+            stack.RebuildRuns();
+            stack.UpdateElementLayout();
+            stack.UpdateStackCollider();
+            
+            TryDespawnIfEmpty();
+            OnSort?.Invoke(this, stack);
+        }
+        
+        private void TryDespawnIfEmpty()
+        {
+            if (_elements.Count > 0)
+            {
+                return;
+            }
+
+            // освободить тайл
+            if (_currentTile != null)
+            {
+                _currentTile.ClearElement();
+                _currentTile = null;
+            }
+            
+            _hexStackItemsInfo.Clear();
+
+            if (_poolingSystem != null)
+            {
+                _poolingSystem.DestroyAPS(gameObject);
+            }
+        }
 
         public void Initilize()
         {
         }
-
+        
+     
         public void Dispose()
         {
             ReleaseElementsToPool();
@@ -326,5 +413,16 @@ namespace Code.Core.Level.Slots.Stack
                 Length = length;
             }
         }
+        
+#if UNITY_EDITOR
+        [ContextMenu("Log hex count in stack")]
+        private void LogHexCountInStack()
+        {
+            int count = _elements?.Count ?? 0;
+            Debug.Log($"[HexStack] {name} has {count} hex elements in stack.", this);
+        }
+        
+        #endif
+        
     }
 }

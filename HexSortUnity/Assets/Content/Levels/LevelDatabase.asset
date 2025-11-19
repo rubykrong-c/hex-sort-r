@@ -17,10 +17,10 @@ MonoBehaviour:
     LevelPrefab: {fileID: 2956551562965107401, guid: 8e5702d25f7a5447fba08909b56b2c0d, type: 3}
     Stacks:
     - _items:
-      - _hexType: 1
-        _count: 5
       - _hexType: 2
         _count: 7
+      - _hexType: 1
+        _count: 5
     - _items:
       - _hexType: 1
         _count: 5

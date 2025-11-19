@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Code.Core.Level.Slots.Stack;
 using Code.Core.Slots.Stack;
 using UnityEngine;
@@ -29,8 +30,25 @@ namespace Code.Core.Level
 
             stack.OnChunkSet -= HandleStackPlaced;
             stack.OnChunkSet += HandleStackPlaced;
+            stack.OnSort -= SortStacks;
+            stack.OnSort += SortStacks;
         }
 
+        private void SortStacks(HexStack stack, HexStack stack2)
+        {
+            UpdateHex(stack);
+            UpdateHex(stack2);
+            EvaluateMatches();
+        }
+
+        private void UpdateHex(HexStack stack)
+        {
+            if (stack.TryGetTopRun(out var topColor, out int count))
+            {
+                _fieldModel.UpdateHex(stack.CurrentTile, stack, topColor, count);
+            }
+        }
+        
         private void HandleStackPlaced(HexStack stack)
         {
             if (stack == null)
@@ -54,17 +72,14 @@ namespace Code.Core.Level
             }
 
             EvaluateMatches();
-            foreach (var v in _matches)
-            {
-                Debug.Log("from", v.FromHex.Tile.gameObject);
-                Debug.Log("to", v.ToHex.Tile.gameObject);
-            }
+         
         }
 
         private void EvaluateMatches()
         {
             _matches.Clear();
             _occupiedMatches.Clear();
+            _checkedPairs.Clear();
 
             foreach (var hex in _fieldModel.Hexes)
             {
@@ -84,7 +99,6 @@ namespace Code.Core.Level
                     {
                         continue;
                     }
-
                     
                     var pair = hex.GetHashCode() < neighbor.GetHashCode()
                         ? (hex, neighbor)
@@ -112,21 +126,24 @@ namespace Code.Core.Level
                     _matches.Add(new FieldMatch(secondary, preferred));
                 }
             }
+            
+            
+            if(_matches.Count > 0)
+            {
+                var v = _matches.First();
+                v.FromHex.Stack.Jump(v.ToHex.Stack, v.FromHex.TopColor, v.FromHex.TopColorCount); 
+            }
         }
 
         public readonly struct FieldMatch
         {
             public readonly FieldModel.FieldHex FromHex;
             public readonly FieldModel.FieldHex ToHex;
-            public readonly EHexType Color;
-            public readonly int TopColorCount;
 
             public FieldMatch(FieldModel.FieldHex fromHex, FieldModel.FieldHex toHex)
             {
                 FromHex = fromHex;
                 ToHex = toHex;
-                Color = toHex.TopColor;
-                TopColorCount = toHex.TopColorCount;
             }
         }
     }

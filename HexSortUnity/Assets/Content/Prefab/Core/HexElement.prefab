@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1509184463292251201}
   - component: {fileID: 965286377127893893}
+  - component: {fileID: 7965685024110846486}
   m_Layer: 0
   m_Name: HexElement
   m_TagString: Untagged
@@ -46,6 +47,27 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Code.HexElement
   _renderer: {fileID: 4966075604442838375}
+  _arcJump: {fileID: 7965685024110846486}
+--- !u!114 &7965685024110846486
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8556865936031689845}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 05342ff67f54460382fd6d4a07c2783d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Code.Core.Level.Element.SimpleArcJump
+  _minJumpHeight: 1
+  _maxJumpHeight: 5
+  _jumpDuration: 0.3
+  _delayAnimation: 0.25
+  _yMovementIsFixed: 0
+  _simpleMovementSpeed: 5
+  _rotationOffset: {x: 0, y: 90, z: -90}
+  parentAtStartOfJump: {fileID: 0}
 --- !u!1001 &5992776882040269283
 PrefabInstance:
   m_ObjectHideFlags: 0

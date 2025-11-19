@@ -65,7 +65,6 @@ namespace Code.Core.Level
                     b.LinkNeighbor(a);
                 }
             }
-
         }
 
         public bool TryGetHex(TileView tile, out FieldHex hex)
@@ -136,6 +135,7 @@ namespace Code.Core.Level
             public HexStack Stack => _stack;
             public EHexType TopColor => _topColor;
             public int TopColorCount => _topColorCount;
+            public Vector3 TopPosition => _stack.TopElement.transform.position;
 
             public FieldHex(TileView tile)
             {

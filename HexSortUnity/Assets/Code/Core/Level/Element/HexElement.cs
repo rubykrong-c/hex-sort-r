@@ -1,3 +1,4 @@
+using Code.Core.Level.Element;
 using Code.Core.Level.Slots.Stack;
 using Code.Core.Slots.Stack;
 using UnityEngine;
@@ -6,16 +7,16 @@ namespace Code
 {
     public class HexElement : MonoBehaviour, IPoolable
     {
-        [SerializeField]
-        private MeshRenderer _renderer;
+        [SerializeField] private MeshRenderer _renderer;
+        [SerializeField] private SimpleArcJump _arcJump;
         
         public EHexType Type { get; private set; }
         public HexStack CurrentStack { get; private set; }
         public MeshRenderer Mesh => _renderer;
+        public SimpleArcJump ArcJump => _arcJump;
 
         public void Configure(EHexType colorId, Material material)
         {
-            
             Type =  colorId;
             if (_renderer != null && material != null)
             {

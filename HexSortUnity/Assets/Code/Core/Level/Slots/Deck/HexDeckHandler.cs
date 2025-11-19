@@ -119,7 +119,16 @@ namespace Code.Core.Slots.Deck
 
                 int length = Mathf.Min(desiredLength, remaining);
 
-                hexStackItems.Add(new HexStackItem(color, length));
+                //TODO: переделать чтобы один цвет двыжды мог быть
+                if (hexStackItems.Count > 0 && hexStackItems[^1].HexType == color)
+                {
+                    var last = hexStackItems[^1];
+                    hexStackItems[^1] = new HexStackItem(color, last.Count + length);
+                }
+                else
+                {
+                    hexStackItems.Add(new HexStackItem(color, length));
+                }
 
                 remaining -= length;
                 lastColor = color;
